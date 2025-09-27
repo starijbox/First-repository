@@ -3,7 +3,8 @@
 ! коды вставлять в два разных файла
 
 ##1. код для создание класификатора 
-~~~from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Input
 import matplotlib.pyplot as plt
@@ -52,11 +53,12 @@ model.save("image_classifier.h5")
 
 plt.subplot(1,1,1)
 plt.imshow()
-plt.show()~~~
+plt.show()
 
-
+_________________
 ##2. код самой ии 
-~~~from PIL import Image
+
+ from PIL import Image
 import tensorflow as tf
 import cv2
 import os
@@ -95,5 +97,8 @@ def predict_image(image_path):
         predicted_class = class_names[tf.argmax(prediction, axis = 0).numpy()[0]]
     print(f"Models predicted class: {predicted_class}")
 
-predict_image("images (6).jpg")~~~
+predict_image("images (6).jpg") 
+
+
+__________________________________________
 
