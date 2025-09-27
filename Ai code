@@ -1,0 +1,99 @@
+##Ai code
+
+! коды вставлять в два разных файла
+
+##1. код для создание класификатора 
+~~~from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Input
+import matplotlib.pyplot as plt
+import os
+
+DATASET_PATH = 'dataset2/'
+
+num_classes = len(os.listdir(DATASET_PATH))
+
+class_mode = "binary" if num_classes == 2 else "multiclass"
+train_datagen = ImageDataGenerator(rescale=1/255, validation_split = 0.2)
+
+train_data = train_datagen.flow_from_directory(
+    DATASET_PATH,
+    target_size = (128, 128),
+    batch_size = 32,
+    class_mode = class_mode,
+    subset = "training"
+)
+
+val_data = train_datagen.flow_from_directory(
+    DATASET_PATH,
+    target_size = (128, 128),
+    batch_size = 32,
+    class_mode = class_mode,
+    subset = "validation"
+)
+
+model = Sequential([
+    Input(shape=(128, 128, 3)),
+    Conv2D(32, (3, 3), activation = "relu"),
+    MaxPooling2D(2, 2),
+    Conv2D(64, (3, 3), activation = "relu"),
+    MaxPooling2D(2, 2),
+    Flatten(),
+    Dense(128, activation = "relu"),
+    Dense(1, activation = "sigmoid") if class_mode == "binary" else Dense(num_classes, activation = "softmax")
+])
+
+loss_function = "binary_crossentropy" if class_mode == "binary" else "categorical_crossentropy"
+model.compile(optimizer= "adam", loss = loss_function, metrics = ["accuracy"])
+model.fit(train_data, validation_data = val_data, epochs = 30)
+test_loss, test_accuracy = model.evaluate(val_data)
+print(f"Model accuracy on validation data: {test_accuracy:.2f}")
+model.save("image_classifier.h5")
+
+plt.subplot(1,1,1)
+plt.imshow()
+plt.show()~~~
+
+
+##2. код самой ии 
+~~~from PIL import Image
+import tensorflow as tf
+import cv2
+import os
+
+DATASET_PATH = 'dataset2/'
+num_classes = len(os.listdir(DATASET_PATH))
+class_mode = "binary" if num_classes == 2 else "multiclass"
+
+def predict_image(image_path):
+    if not os.path.exists(image_path):
+        print(f"Error: {image_path} doesn't exist")
+        return
+    try:
+        img = Image.open(image_path)
+        img.verify()
+        img = Image.open(image_path)
+    except (OSError, IOError):
+        print(f"Error, damaged file by path {image_path}")
+        return
+
+    model = tf.keras.models.load_model('image_classifier.h5')
+    img = cv2.imread(image_path)
+
+    if img is None:
+        print(f"Error: Couldnt read image {image_path}")
+        return
+    img = cv2.resize(img, (128, 128))
+    img = img/255
+    img = tf.expand_dims(img, axis= 0)
+
+    prediction = model.predict(img)
+    class_names = os.listdir(DATASET_PATH)
+    if class_mode == "binary":
+        predicted_class = class_names[int(bool(prediction[0] > 0.5))]
+    else:
+        predicted_class = class_names[tf.argmax(prediction, axis = 0).numpy()[0]]
+    print(f"Models predicted class: {predicted_class}")
+
+predict_image("images (6).jpg")~~~
+
