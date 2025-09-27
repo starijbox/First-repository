@@ -2,7 +2,7 @@
 
 ! коды вставлять в два разных файла
 
-##1. код для создание класификатора 
+##1. код для создание клаcсификатора 
 
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.models import Sequential
